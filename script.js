@@ -4,7 +4,8 @@ const money_minus = document.getElementById('money-minus');
 const list = document.getElementById('list');
 const form = document.getElementById('form');
 const text = document.getElementById('text');
-const amount = document.getElementById('balance');
+const amount = document.getElementById('amount');
+const deleteBtn = document.getElementsByClassName('delete-btn');
 
 const dummyTransactions = [
   { id: 1, text: 'Flower', amount: -20 },
@@ -15,6 +16,35 @@ const dummyTransactions = [
 
 let transactions = dummyTransactions;
 
+// Add transaction
+function addTransaction(e) {
+  e.preventDefault();
+
+  if(text.value.trim() === '' || amount.value.trim() === '') {
+    alert('Please add a text and amount');   
+  } else {
+    const transaction = {
+      id: generateID(),
+      text: text.value,
+      amount: +amount.value // + turned string into a number
+    }
+
+    transactions.push(transaction);
+
+    addTranactionDOM(transaction);
+    updateValues();
+
+    text.value = '';
+    amount.value = '';
+  }
+}
+
+// Generate random ID
+
+function generateID() {
+  return Math.floor(Math.random()) * 100000000;
+}
+
 // Add transactions to DOM list
 function addTranactionDOM(transaction) {
   // Get sign
@@ -24,7 +54,9 @@ function addTranactionDOM(transaction) {
 
   // Add class based on value
   item.classList.add(transaction.amount < 0 ? 'minus' : 'plus');
-  item.innerHTML = `${transaction.text} <span>${sign}${Math.abs(transaction.amount)} </span> <button class="delete-btn">x</button>` /* Math.abs turns negative to positive because we had sign */
+  item.innerHTML = `${transaction.text} <span>${sign}${Math.abs(transaction.amount)} </span> <button class="delete-btn" onclick="removeTransaction(${
+    transaction.id
+  })">x</button>` /* Math.abs turns negative to positive because we had sign */
   list.appendChild(item);
 }
 
@@ -46,8 +78,15 @@ function updateValues() {
   money_minus.innerText = `$${expense}`;
 }
 
-// Init app
+// Remove transaction by id
 
+function removeTransaction(id) {
+  transactions = transactions.filter(transaction => transaction.id !== id);
+
+  init();
+}
+
+// Init app
 function init() {
   list.innerHTML = '';
 
@@ -56,3 +95,7 @@ function init() {
 }
 
 init();
+
+
+// Event Listeners
+form.addEventListener('submit', addTransaction);
