@@ -7,15 +7,16 @@ const text = document.getElementById('text');
 const amount = document.getElementById('amount');
 const deleteBtn = document.getElementsByClassName('delete-btn');
 
-const dummyTransactions = [
-  { id: 1, text: 'Flower', amount: -20 },
-  { id: 2, text: 'Salary', amount: 300 },
-  { id: 3, text: 'Book', amount: -10 },
-  { id: 4, text: 'Camera', amount: 150 }
-];
+// const dummyTransactions = [
+//   { id: 1, text: 'Flower', amount: -20 },
+//   { id: 2, text: 'Salary', amount: 300 },
+//   { id: 3, text: 'Book', amount: -10 },
+//   { id: 4, text: 'Camera', amount: 150 }
+// ];
 
-let transactions = dummyTransactions;
+const localStorageTransactions = JSON.parse(localStorage.getItem('transactions'));
 
+let transactions = localStorage.getItem('transactions') !== null ? localStorageTransactions : [];
 // Add transaction
 function addTransaction(e) {
   e.preventDefault();
@@ -33,6 +34,7 @@ function addTransaction(e) {
 
     addTranactionDOM(transaction);
     updateValues();
+    updateLocalStorage();
 
     text.value = '';
     amount.value = '';
@@ -42,7 +44,7 @@ function addTransaction(e) {
 // Generate random ID
 
 function generateID() {
-  return Math.floor(Math.random()) * 100000000;
+  return Math.floor(Math.random() * 100000000);
 }
 
 // Add transactions to DOM list
@@ -54,7 +56,10 @@ function addTranactionDOM(transaction) {
 
   // Add class based on value
   item.classList.add(transaction.amount < 0 ? 'minus' : 'plus');
-  item.innerHTML = `${transaction.text} <span>${sign}${Math.abs(transaction.amount)} </span> <button class="delete-btn" onclick="removeTransaction(${
+
+  item.innerHTML = `${transaction.text} 
+  <span>${sign}${Math.abs(transaction.amount)} </span> 
+  <button class="delete-btn" onclick="removeTransaction(${
     transaction.id
   })">x</button>` /* Math.abs turns negative to positive because we had sign */
   list.appendChild(item);
@@ -79,11 +84,18 @@ function updateValues() {
 }
 
 // Remove transaction by id
-
 function removeTransaction(id) {
   transactions = transactions.filter(transaction => transaction.id !== id);
 
+  updateLocalStorage();
+
   init();
+}
+
+// Update local storage transactions
+function updateLocalStorage() {
+  localStorage.setItem('transactions', JSON.stringify(transactions));
+  
 }
 
 // Init app
